@@ -1,5 +1,6 @@
 import streamlit as st
 from ui import visualize_mix, display_feedback  # Import visualization and feedback functions
+from test import compression_test, visualize_cube  # Import compression test and 3D cube visualization
 import random
 
 # Streamlit app configuration
@@ -18,11 +19,11 @@ def adjust_proportions(selected_material, new_value, proportions):
     remaining_total = 100 - new_value
     other_materials = {k: v for k, v in proportions.items() if k != selected_material}
     total_others = sum(other_materials.values())
-    
+
     # Scale other materials proportionally to maintain total = 100
     for material in other_materials:
         proportions[material] = (remaining_total * other_materials[material]) / total_others
-    
+
     proportions[selected_material] = new_value
     return proportions
 
@@ -60,7 +61,7 @@ def get_strength_feedback(proportions):
         feedback += " Note: High coarse aggregate content may reduce workability."
     elif coarse_aggregate < 40:
         feedback += " Note: Low coarse aggregate content may affect structural integrity."
-    
+
     return feedback
 
 # Button to generate ACI mix
@@ -92,3 +93,12 @@ st.table({"Material": labels, "Proportion (%)": values})
 # Strength feedback
 feedback = get_strength_feedback(proportions)
 display_feedback(feedback)
+
+# Compression Test Section
+st.markdown("---")
+st.header("Concrete Compression Test")
+if st.button("Run Compression Test"):
+    visualize_cube()
+    results = compression_test()
+    st.write("Test Results (Load and Stress):")
+    st.write(results)
