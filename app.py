@@ -1,6 +1,6 @@
 import streamlit as st
 from ui import visualize_mix, display_feedback  # Import visualization and feedback functions
-from test import compression_test, visualize_cube  # Import compression test and 3D cube visualization
+from compression_test import compression_test_with_animation, visualize_cube  # Import compression test and 3D cube visualization
 import random
 
 # Streamlit app configuration
