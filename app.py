@@ -106,12 +106,10 @@ elif page == "Compression Test":
     st.markdown("Simulate a lab-based compression test for a 15 cm × 15 cm × 15 cm concrete cube.")
 
     if st.button("Run Compression Test"):
-        # Visualizing the cube
-        st.markdown("#### Visualizing Cube:")
-        fig = plt.figure(figsize=(8, 6))
-        ax = fig.add_subplot(111, projection="3d")
-        visualize_cube(ax)
-        st.pyplot(fig)
+        st.markdown("#### Compression Test Animation:")
+        video_path = compression_test_with_animation()
+        st.video(video_path)
+
 
         # Running the compression test with animation
         st.markdown("#### Compression Test Animation:")
