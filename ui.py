@@ -6,9 +6,10 @@ from matplotlib.colors import LinearSegmentedColormap
 def visualize_mix(labels, values):
     """Visualizes the concrete mix as an enhanced stacked bar chart with annotations."""
     # Create a gradient color map for better visualization
-    colors = LinearSegmentedColormap.from_list(
-        "mix_colors", ['#FFC300', '#FF5733', '#C70039', '#900C3F', '#581845'], N=len(labels)
-    ).colors
+    cmap = LinearSegmentedColormap.from_list(
+        "mix_colors", ['#FFC300', '#FF5733', '#C70039', '#900C3F', '#581845']
+    )
+    colors = [cmap(i / (len(labels) - 1)) for i in range(len(labels))]
 
     fig, ax = plt.subplots(figsize=(6, 8))
     bottom = 0
