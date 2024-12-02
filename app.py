@@ -1,6 +1,5 @@
 import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
+from ui import visualize_mix, display_feedback  # Import visualization and feedback functions
 import random
 
 # Streamlit app configuration
@@ -79,34 +78,17 @@ for material in proportions:
 # Save updated proportions in session state
 st.session_state["proportions"] = proportions
 
-# Data preparation for visualization
+# Data preparation
 labels = list(proportions.keys())
 values = list(proportions.values())
 
-# Enhanced visualization with stacked bar chart
-fig, ax = plt.subplots(figsize=(6, 8))
-colors = ['#FF7F50', '#1E90FF', '#98FB98', '#FFD700', '#9370DB']
-bottom = 0
-
-for i, (label, value) in enumerate(zip(labels, values)):
-    ax.bar(0, value, bottom=bottom, color=colors[i], label=label, width=0.5)
-    bottom += value
-
-ax.set_xlim(-1, 1)
-ax.set_ylim(0, 100)
-ax.set_xticks([])
-ax.set_yticks(np.arange(0, 101, 10))
-ax.set_ylabel("Percentage (%)")
-ax.set_title("Concrete Mix Composition")
-
-# Display the chart
-st.pyplot(fig)
+# Visualization
+visualize_mix(labels, values)
 
 # Display the proportions as a table
 st.markdown("### Material Proportions")
 st.table({"Material": labels, "Proportion (%)": values})
 
 # Strength feedback
-st.markdown("### Strength Feedback")
 feedback = get_strength_feedback(proportions)
-st.info(feedback)
+display_feedback(feedback)
