@@ -98,7 +98,6 @@ ax.set_xticks([])
 ax.set_yticks(np.arange(0, 101, 10))
 ax.set_ylabel("Percentage (%)")
 ax.set_title("Concrete Mix Composition")
-ax.legend(loc='upper right')
 
 # Display the chart
 st.pyplot(fig)
