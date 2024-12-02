@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import tempfile
+import os
 
 # Constants for the test
 CUBE_SIZE = 0.15  # Cube size in meters (15 cm)
@@ -14,7 +16,8 @@ def visualize_cube(ax):
     # Define the vertices of the cube
     vertices = np.array([
         [0, 0, 0], [CUBE_SIZE, 0, 0], [CUBE_SIZE, CUBE_SIZE, 0], [0, CUBE_SIZE, 0],
-        [0, 0, CUBE_SIZE], [CUBE_SIZE, 0, CUBE_SIZE], [CUBE_SIZE, CUBE_SIZE, CUBE_SIZE], [0, CUBE_SIZE, CUBE_SIZE]
+        [0, 0, CUBE_SIZE], [CUBE_SIZE, 0, CUBE_SIZE], 
+        [CUBE_SIZE, CUBE_SIZE, CUBE_SIZE], [0, CUBE_SIZE, CUBE_SIZE]
     ])
     
     # Define the edges of the cube
@@ -32,28 +35,8 @@ def visualize_cube(ax):
     ax.add_collection3d(cube)
     return cube
 
-def update_cube(ax, cube, compression):
-    """Update the cube dimensions during compression."""
-    scale = 1 - compression  # Compression factor
-    vertices = np.array([
-        [0, 0, 0], [CUBE_SIZE, 0, 0], [CUBE_SIZE, CUBE_SIZE, 0], [0, CUBE_SIZE, 0],
-        [0, 0, scale * CUBE_SIZE], [CUBE_SIZE, 0, scale * CUBE_SIZE], 
-        [CUBE_SIZE, CUBE_SIZE, scale * CUBE_SIZE], [0, CUBE_SIZE, scale * CUBE_SIZE]
-    ])
-    edges = [
-        [vertices[0], vertices[1], vertices[2], vertices[3]],  # Bottom face
-        [vertices[4], vertices[5], vertices[6], vertices[7]],  # Top face
-        [vertices[0], vertices[1], vertices[5], vertices[4]],  # Side face
-        [vertices[2], vertices[3], vertices[7], vertices[6]],  # Side face
-        [vertices[0], vertices[3], vertices[7], vertices[4]],  # Side face
-        [vertices[1], vertices[2], vertices[6], vertices[5]]   # Side face
-    ]
-    cube.set_verts(edges)
-    ax.collections.clear()
-    ax.add_collection3d(cube)
-
 def compression_test_with_animation():
-    """Simulate the compression test with animation."""
+    """Simulate the compression test with animation and save as video."""
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection="3d")
     
@@ -75,14 +58,33 @@ def compression_test_with_animation():
 
     def update(frame):
         compression = min(compressions[frame], 1)  # Stop at maximum compression
-        update_cube(ax, cube, compression)
-        ax.set_title(f"Concrete Cube Compression Test\nLoad: {loads[frame]} N | Stress: {loads[frame] / CROSS_SECTIONAL_AREA:.2f} Pa")
+        scale = 1 - compression
+        vertices = np.array([
+            [0, 0, 0], [CUBE_SIZE, 0, 0], [CUBE_SIZE, CUBE_SIZE, 0], [0, CUBE_SIZE, 0],
+            [0, 0, scale * CUBE_SIZE], [CUBE_SIZE, 0, scale * CUBE_SIZE], 
+            [CUBE_SIZE, CUBE_SIZE, scale * CUBE_SIZE], [0, CUBE_SIZE, scale * CUBE_SIZE]
+        ])
+        edges = [
+            [vertices[0], vertices[1], vertices[2], vertices[3]],  # Bottom face
+            [vertices[4], vertices[5], vertices[6], vertices[7]],  # Top face
+            [vertices[0], vertices[1], vertices[5], vertices[4]],  # Side face
+            [vertices[2], vertices[3], vertices[7], vertices[6]],  # Side face
+            [vertices[0], vertices[3], vertices[7], vertices[4]],  # Side face
+            [vertices[1], vertices[2], vertices[6], vertices[5]]   # Side face
+        ]
+        cube.set_verts(edges)
+        ax.collections.clear()
+        ax.add_collection3d(cube)
+        ax.set_title(f"Load: {loads[frame]} N | Stress: {loads[frame] / CROSS_SECTIONAL_AREA:.2f} Pa")
         if compressions[frame] >= 1:
             ax.set_title(f"Cube Failed!\nUltimate Load: {loads[frame]} N | Compressive Strength: 40 MPa")
     
+    # Create animation
     anim = FuncAnimation(fig, update, frames=len(loads), interval=100, repeat=False)
-    plt.show()
-
-if __name__ == "__main__":
-    # Run the compression test with animation
-    compression_test_with_animation()
+    
+    # Save animation to a temporary file
+    temp_dir = tempfile.gettempdir()
+    video_path = os.path.join(temp_dir, "compression_test.mp4")
+    anim.save(video_path, fps=10, extra_args=['-vcodec', 'libx264'])
+    plt.close(fig)
+    return video_path
