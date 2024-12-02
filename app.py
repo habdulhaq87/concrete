@@ -7,7 +7,7 @@ st.set_page_config(page_title="Concrete Composition Visualizer", layout="centere
 
 # App title
 st.title("Concrete Composition Visualizer")
-st.markdown("Visualize and generate concrete mixes based on the ACI code.")
+st.markdown("Visualize and generate concrete mixes based on the ACI code with strength feedback.")
 
 # Initialize default proportions
 default_proportions = {"Cement": 15, "Water": 10, "Sand": 25, "Coarse Aggregate": 50, "Additives": 0}
@@ -37,6 +37,31 @@ def generate_aci_mix():
     sand = random.randint(int(0.3 * remaining), int(0.5 * remaining))  # Sand: 30-50% of remaining
     coarse_aggregate = 100 - (cement + water + sand + additives)       # Remaining is coarse aggregate
     return {"Cement": cement, "Water": water, "Sand": sand, "Coarse Aggregate": coarse_aggregate, "Additives": additives}
+
+# Function to calculate strength feedback
+def get_strength_feedback(proportions):
+    cement = proportions["Cement"]
+    water = proportions["Water"]
+    coarse_aggregate = proportions["Coarse Aggregate"]
+    water_cement_ratio = water / cement if cement > 0 else float('inf')
+
+    # Logical feedback based on mix proportions
+    if water_cement_ratio < 0.4:
+        feedback = "High strength mix: Suitable for structural applications like columns and beams."
+    elif 0.4 <= water_cement_ratio <= 0.6:
+        feedback = "Moderate strength mix: Suitable for general-purpose applications like slabs and pavements."
+    elif water_cement_ratio > 0.6:
+        feedback = "Low strength mix: May have high workability but reduced strength. Suitable for non-load-bearing elements."
+    else:
+        feedback = "Invalid mix: Check proportions."
+
+    # Consider coarse aggregate content for workability
+    if coarse_aggregate > 55:
+        feedback += " Note: High coarse aggregate content may reduce workability."
+    elif coarse_aggregate < 40:
+        feedback += " Note: Low coarse aggregate content may affect structural integrity."
+    
+    return feedback
 
 # Button to generate ACI mix
 if st.sidebar.button("Generate ACI Mix"):
@@ -68,3 +93,8 @@ st.pyplot(fig)
 # Display the proportions as a table
 st.markdown("### Material Proportions")
 st.table({"Material": labels, "Proportion (%)": values})
+
+# Strength feedback
+st.markdown("### Strength Feedback")
+feedback = get_strength_feedback(proportions)
+st.info(feedback)
