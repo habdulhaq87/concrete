@@ -1,12 +1,13 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import random
 
 # Streamlit app configuration
 st.set_page_config(page_title="Concrete Composition Visualizer", layout="centered")
 
 # App title
 st.title("Concrete Composition Visualizer")
-st.markdown("Visualize the proportions of materials used in concrete mix design.")
+st.markdown("Visualize and generate concrete mixes based on the ACI code.")
 
 # Initialize default proportions
 default_proportions = {"Cement": 15, "Water": 10, "Sand": 25, "Coarse Aggregate": 50, "Additives": 0}
@@ -24,6 +25,23 @@ def adjust_proportions(selected_material, new_value, proportions):
     
     proportions[selected_material] = new_value
     return proportions
+
+# Helper function to generate random mix based on ACI
+def generate_aci_mix():
+    random.seed()  # Generate a new random seed
+    # Typical ACI ranges for concrete mix components
+    cement = random.randint(12, 20)  # Cement: 12-20%
+    water = random.randint(8, 12)    # Water: 8-12%
+    additives = random.randint(0, 5) # Additives: 0-5%
+    remaining = 100 - (cement + water + additives)
+    sand = random.randint(int(0.3 * remaining), int(0.5 * remaining))  # Sand: 30-50% of remaining
+    coarse_aggregate = 100 - (cement + water + sand + additives)       # Remaining is coarse aggregate
+    return {"Cement": cement, "Water": water, "Sand": sand, "Coarse Aggregate": coarse_aggregate, "Additives": additives}
+
+# Button to generate ACI mix
+if st.sidebar.button("Generate ACI Mix"):
+    proportions = generate_aci_mix()
+    st.session_state["proportions"] = proportions
 
 # Input sliders with dynamic adjustments
 st.sidebar.header("Adjust Material Proportions (%)")
