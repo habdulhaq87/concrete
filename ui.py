@@ -23,7 +23,7 @@ def visualize_mix(labels, values):
 
     # Customize the chart
     ax.set_xlim(-1, 1)
-    ax.set_ylim(0, 100)
+    ax.set_ylim(0, 50)
     ax.set_xticks([])
     ax.set_yticks(np.arange(0, 101, 10))
     ax.set_ylabel("Percentage (%)", fontsize=12)
