@@ -2,6 +2,8 @@ import streamlit as st
 from ui import visualize_mix, display_feedback  # Import visualization and feedback functions
 from compression_test import compression_test_with_animation, visualize_cube  # Import compression test and 3D cube visualization
 import random
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # For 3D plotting
 
 # Streamlit app configuration
 st.set_page_config(page_title="Concrete Application", layout="wide")
@@ -104,10 +106,13 @@ elif page == "Compression Test":
     st.markdown("Simulate a lab-based compression test for a 15 cm × 15 cm × 15 cm concrete cube.")
 
     if st.button("Run Compression Test"):
+        # Visualizing the cube
         st.markdown("#### Visualizing Cube:")
-        visualize_cube()
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_subplot(111, projection="3d")
+        visualize_cube(ax)
+        st.pyplot(fig)
 
-        st.markdown("#### Compression Test Results:")
-        results = compression_test()
-        st.write("Test Results (Load and Stress):")
-        st.write(results)
+        # Running the compression test with animation
+        st.markdown("#### Compression Test Animation:")
+        compression_test_with_animation()
