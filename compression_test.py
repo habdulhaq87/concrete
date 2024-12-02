@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FuncAnimation, PillowWriter
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import tempfile
 import os
@@ -36,7 +36,7 @@ def visualize_cube(ax):
     return cube
 
 def compression_test_with_animation():
-    """Simulate the compression test with animation and save as video."""
+    """Simulate the compression test with animation and save as GIF."""
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection="3d")
     
@@ -82,9 +82,9 @@ def compression_test_with_animation():
     # Create animation
     anim = FuncAnimation(fig, update, frames=len(loads), interval=100, repeat=False)
     
-    # Save animation to a temporary file
+    # Save animation to a temporary file as GIF
     temp_dir = tempfile.gettempdir()
-    video_path = os.path.join(temp_dir, "compression_test.mp4")
-    anim.save(video_path, fps=10, extra_args=['-vcodec', 'libx264'])
+    gif_path = os.path.join(temp_dir, "compression_test.gif")
+    anim.save(gif_path, writer=PillowWriter(fps=10))
     plt.close(fig)
-    return video_path
+    return gif_path
