@@ -8,31 +8,45 @@ st.set_page_config(page_title="Concrete Composition Visualizer", layout="centere
 st.title("Concrete Composition Visualizer")
 st.markdown("Visualize the proportions of materials used in concrete mix design.")
 
-# Input sliders for material proportions
-st.sidebar.header("Input Material Proportions (%)")
-cement = st.sidebar.slider("Cement", min_value=0, max_value=100, value=15)
-water = st.sidebar.slider("Water", min_value=0, max_value=100, value=10)
-sand = st.sidebar.slider("Sand", min_value=0, max_value=100, value=25)
-coarse_aggregate = st.sidebar.slider("Coarse Aggregate", min_value=0, max_value=100, value=50)
-additives = st.sidebar.slider("Additives", min_value=0, max_value=100, value=0)
+# Initialize default proportions
+default_proportions = {"Cement": 15, "Water": 10, "Sand": 25, "Coarse Aggregate": 50, "Additives": 0}
+proportions = st.session_state.get("proportions", default_proportions)
 
-# Ensure total proportions do not exceed 100%
-total = cement + water + sand + coarse_aggregate + additives
-if total > 100:
-    st.error(f"Total proportions exceed 100% ({total}%). Adjust the values.")
-else:
-    # Data preparation
-    labels = ["Cement", "Water", "Sand", "Coarse Aggregate", "Additives"]
-    proportions = [cement, water, sand, coarse_aggregate, additives]
+# Helper function to adjust proportions
+def adjust_proportions(selected_material, new_value, proportions):
+    remaining_total = 100 - new_value
+    other_materials = {k: v for k, v in proportions.items() if k != selected_material}
+    total_others = sum(other_materials.values())
+    
+    # Scale other materials proportionally to maintain total = 100
+    for material in other_materials:
+        proportions[material] = (remaining_total * other_materials[material]) / total_others
+    
+    proportions[selected_material] = new_value
+    return proportions
 
-    # Plot the pie chart
-    fig, ax = plt.subplots()
-    ax.pie(proportions, labels=labels, autopct="%1.1f%%", startangle=90)
-    ax.axis("equal")  # Equal aspect ratio ensures the pie chart is circular.
+# Input sliders with dynamic adjustments
+st.sidebar.header("Adjust Material Proportions (%)")
+for material in proportions:
+    new_value = st.sidebar.slider(material, min_value=0, max_value=100, value=int(proportions[material]), step=1)
+    if new_value != proportions[material]:
+        proportions = adjust_proportions(material, new_value, proportions)
 
-    # Display the chart
-    st.pyplot(fig)
+# Save updated proportions in session state
+st.session_state["proportions"] = proportions
 
-    # Display the proportions as a table
-    st.markdown("### Material Proportions")
-    st.table({"Material": labels, "Proportion (%)": proportions})
+# Data preparation for visualization
+labels = list(proportions.keys())
+values = list(proportions.values())
+
+# Plot the pie chart
+fig, ax = plt.subplots()
+ax.pie(values, labels=labels, autopct="%1.1f%%", startangle=90)
+ax.axis("equal")  # Equal aspect ratio ensures the pie chart is circular.
+
+# Display the chart
+st.pyplot(fig)
+
+# Display the proportions as a table
+st.markdown("### Material Proportions")
+st.table({"Material": labels, "Proportion (%)": values})
